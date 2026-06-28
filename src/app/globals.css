@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-page text-ink font-sans;
+}
+
+/* Focus clavier visible (accessibilité WCAG AA) */
+:focus-visible {
+  @apply outline-none ring-2 ring-accent ring-offset-2;
+}
+
+/* Respect des préférences de mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@layer components {
+  /* Le prix : seul élément orange, gras, condensé, plus grand */
+  .price {
+    @apply font-display font-bold text-accent;
+  }
+  .btn-accent {
+    @apply inline-flex items-center justify-center rounded-md bg-accent px-4 py-2
+      font-medium text-white transition-colors hover:bg-accent-hover
+      disabled:opacity-50;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-md border border-line
+      bg-white px-4 py-2 font-medium text-ink transition-colors hover:bg-page;
+  }
+  .card {
+    @apply rounded-lg border border-line bg-white;
+  }
+}

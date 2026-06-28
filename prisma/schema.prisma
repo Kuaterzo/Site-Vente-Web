@@ -1,0 +1,199 @@
+// Schéma Prisma — site e-commerce B2B carrosserie
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+// Statut de validation d'un compte pro (vérification SIRET/KBIS par l'admin)
+enum AccountStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AddressType {
+  BILLING
+  SHIPPING
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  passwordHash  String
+  role          Role          @default(CUSTOMER)
+  status        AccountStatus @default(PENDING)
+  // Informations pro
+  companyName   String
+  siret         String
+  vatNumber     String?
+  sector        String?
+  phone         String?
+  company       Company?
+  addresses     Address[]
+  carts         Cart[]
+  orders        Order[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  name      String
+  siret     String
+  vatNumber String?
+}
+
+model Address {
+  id         String      @id @default(cuid())
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  type       AddressType
+  line1      String
+  line2      String?
+  zip        String
+  city       String
+  country    String      @default("France")
+  orders     Order[]
+}
+
+model Category {
+  id       String     @id @default(cuid())
+  name     String
+  slug     String     @unique
+  parentId String?
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+}
+
+model Product {
+  id            String           @id @default(cuid())
+  name          String
+  slug          String           @unique
+  description   String?
+  brand         String
+  supplierRef   String?
+  imageUrl      String?
+  category      Category         @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  // Visibilité du prix : par défaut réservé aux pros validés ; true = visible par tous
+  isPublicPrice Boolean          @default(false)
+  // Mise en avant / promo
+  isFeatured    Boolean          @default(false)
+  variants      ProductVariant[]
+  techSheets    TechnicalSheet[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+// Conditionnement (ex. 1 L / 2,5 L / 5 L) + prix + stock
+model ProductVariant {
+  id            String      @id @default(cuid())
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId     String
+  packaging     String // "1 L", "2,5 L", "Carton de 6"
+  sku           String      @unique
+  priceHt       Int // centimes HT
+  oldPriceHt    Int? // ancien prix barré (promo)
+  vatRate       Int         @default(20) // %
+  stock         Int         @default(0)
+  priceTiers    PriceTier[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+}
+
+// Paliers de prix dégressifs par quantité
+model PriceTier {
+  id        String         @id @default(cuid())
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  variantId String
+  minQty    Int
+  priceHt   Int // centimes HT au-delà de minQty
+}
+
+model TechnicalSheet {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  label     String // "FDS", "TDS"
+  url       String
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String         @id @default(cuid())
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  variantId String
+  quantity  Int            @default(1)
+
+  @@unique([cartId, variantId])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  number        String      @unique // numéro de facture/commande
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  status        OrderStatus @default(PENDING)
+  totalHt       Int // centimes
+  totalVat      Int
+  totalTtc      Int
+  address       Address?    @relation(fields: [addressId], references: [id])
+  addressId     String?
+  stripeSession String?
+  items         OrderItem[]
+  invoice       Invoice?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          String         @id @default(cuid())
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     String
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+  variantId   String
+  productName String // figé au moment de la commande
+  packaging   String
+  unitPriceHt Int
+  vatRate     Int
+  quantity    Int
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String   @unique
+  number    String   @unique
+  url       String? // PDF généré
+  createdAt DateTime @default(now())
+}
