@@ -16,6 +16,10 @@ export async function checkout(formData: FormData) {
   const cart = await loadCart(userId);
   if (cart.lines.length === 0) redirect("/panier");
 
+  // Contrôle de stock : empêche la survente avant de créer la commande.
+  const outOfStock = cart.lines.find((l) => l.quantity > l.stock);
+  if (outOfStock) redirect("/panier?error=stock");
+
   const addressId = (formData.get("addressId") as string) || null;
   const number = generateOrderNumber();
 

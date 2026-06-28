@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { clientKey, rateLimit } from "@/lib/rate-limit";
 
 const registerSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -26,6 +27,10 @@ export async function registerUser(
   _prev: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
+  // Anti-spam : 3 inscriptions / 10 min / IP.
+  if (!rateLimit(await clientKey("register"), 3, 600_000)) {
+    return { error: "Trop de demandes. Réessayez plus tard." };
+  }
   const data = Object.fromEntries(formData) as Record<string, string>;
   const parsed = registerSchema.safeParse(data);
   if (!parsed.success) {

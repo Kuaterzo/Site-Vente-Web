@@ -28,6 +28,11 @@ export function CartItemRow({ line }: { line: CartLine }) {
         <p className="text-xs font-semibold uppercase text-primary">{line.brand}</p>
         <p className="font-medium">{line.productName}</p>
         <p className="text-sm text-ink/50">{line.packaging}</p>
+        {line.quantity > line.stock && (
+          <p className="text-xs font-medium text-promo">
+            Stock insuffisant ({line.stock} dispo)
+          </p>
+        )}
       </td>
       <td className="py-3 text-right">{formatPrice(line.unitPriceHt)}</td>
       <td className="py-3">

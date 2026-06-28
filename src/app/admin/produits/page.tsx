@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
 import { PublicPriceToggle, StockInput } from "@/components/admin/product-controls";
@@ -10,8 +11,13 @@ export default async function AdminProductsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl font-bold">Produits</h1>
-      <p className="mt-1 text-sm text-ink/60">{products.length} produit(s)</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Produits</h1>
+          <p className="mt-1 text-sm text-ink/60">{products.length} produit(s)</p>
+        </div>
+        <Link href="/admin/produits/nouveau" className="btn-accent">+ Nouveau produit</Link>
+      </div>
 
       <table className="mt-6 w-full text-sm">
         <thead>
@@ -27,7 +33,9 @@ export default async function AdminProductsPage() {
             <tr key={p.id} className="border-b border-line align-top">
               <td className="py-3">
                 <p className="text-xs font-semibold uppercase text-primary">{p.brand}</p>
-                <p className="font-medium">{p.name}</p>
+                <Link href={`/admin/produits/${p.id}`} className="font-medium hover:text-accent">
+                  {p.name}
+                </Link>
               </td>
               <td className="py-3 text-ink/70">{p.category.name}</td>
               <td className="py-3">

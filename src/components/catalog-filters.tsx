@@ -2,8 +2,15 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-// Filtres latéraux du catalogue : marque + tri. Met à jour l'URL (querystring).
-export function CatalogFilters({ brands }: { brands: string[] }) {
+// Filtres latéraux du catalogue : marque, conditionnement, plage de prix + tri.
+// Tous les filtres sont reflétés dans l'URL (querystring) pour rester partageables.
+export function CatalogFilters({
+  brands,
+  packagings,
+}: {
+  brands: string[];
+  packagings: string[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -15,26 +22,62 @@ export function CatalogFilters({ brands }: { brands: string[] }) {
     router.push(`${pathname}?${next.toString()}`);
   };
 
+  const FilterGroup = ({
+    title,
+    paramKey,
+    options,
+  }: {
+    title: string;
+    paramKey: string;
+    options: string[];
+  }) => (
+    <div>
+      <p className="mb-2 font-semibold">{title}</p>
+      <div className="space-y-1 text-sm">
+        <button
+          onClick={() => setParam(paramKey, "")}
+          className={`block hover:text-accent ${!params.get(paramKey) ? "font-semibold text-accent" : "text-ink/70"}`}
+        >
+          Tous
+        </button>
+        {options.map((o) => (
+          <button
+            key={o}
+            onClick={() => setParam(paramKey, o)}
+            className={`block text-left hover:text-accent ${params.get(paramKey) === o ? "font-semibold text-accent" : "text-ink/70"}`}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <aside className="space-y-6">
+      {brands.length > 0 && <FilterGroup title="Marque" paramKey="brand" options={brands} />}
+      {packagings.length > 0 && (
+        <FilterGroup title="Conditionnement" paramKey="packaging" options={packagings} />
+      )}
+
       <div>
-        <p className="mb-2 font-semibold">Marque</p>
-        <div className="space-y-1 text-sm">
-          <button
-            onClick={() => setParam("brand", "")}
-            className={`block hover:text-accent ${!params.get("brand") ? "font-semibold text-accent" : "text-ink/70"}`}
-          >
-            Toutes
-          </button>
-          {brands.map((b) => (
-            <button
-              key={b}
-              onClick={() => setParam("brand", b)}
-              className={`block hover:text-accent ${params.get("brand") === b ? "font-semibold text-accent" : "text-ink/70"}`}
-            >
-              {b}
-            </button>
-          ))}
+        <p className="mb-2 font-semibold">Prix HT (€)</p>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="min"
+            defaultValue={params.get("min") ?? ""}
+            onBlur={(e) => setParam("min", e.target.value)}
+            className="w-20 rounded-md border border-line px-2 py-1 text-sm"
+          />
+          <span className="text-ink/40">–</span>
+          <input
+            type="number"
+            placeholder="max"
+            defaultValue={params.get("max") ?? ""}
+            onBlur={(e) => setParam("max", e.target.value)}
+            className="w-20 rounded-md border border-line px-2 py-1 text-sm"
+          />
         </div>
       </div>
 

@@ -6,7 +6,12 @@ import { loadCart } from "@/lib/cart-data";
 import { formatPrice } from "@/lib/utils";
 import { CartItemRow } from "@/components/cart-item-row";
 
-export default async function CartPage() {
+export default async function CartPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const session = await auth();
 
   if (!session?.user) redirect("/connexion?callbackUrl=/panier");
@@ -35,6 +40,11 @@ export default async function CartPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
       <h1 className="font-display text-3xl font-bold">Mon panier</h1>
+      {error === "stock" && (
+        <p className="mt-4 rounded-md border border-promo/30 bg-promo/5 p-3 text-sm text-promo">
+          Une ou plusieurs quantités dépassent le stock disponible. Ajustez votre panier avant de commander.
+        </p>
+      )}
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
         <table className="w-full text-sm">
           <thead>

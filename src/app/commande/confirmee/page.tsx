@@ -18,13 +18,19 @@ export default async function OrderConfirmedPage({
   });
   if (!order) redirect("/");
 
+  const paid = order.status === "PAID";
+
   return (
     <div className="mx-auto max-w-xl px-4 py-16 text-center">
-      <h1 className="font-display text-3xl font-bold text-stock">Commande confirmée ✓</h1>
+      <h1 className="font-display text-3xl font-bold text-stock">
+        {paid ? "Commande confirmée ✓" : "Commande enregistrée"}
+      </h1>
       <p className="mt-3 text-ink/70">
         Merci ! Votre commande <strong>{order.number}</strong> d'un montant de{" "}
-        <span className="price">{formatPrice(order.totalTtc)}</span> a bien été
-        enregistrée.
+        <span className="price">{formatPrice(order.totalTtc)}</span>{" "}
+        {paid
+          ? "a bien été payée et confirmée."
+          : "est enregistrée. La confirmation de paiement vous sera notifiée sous peu."}
       </p>
       <div className="mt-6 flex justify-center gap-3">
         <Link href="/compte/commandes" className="btn-accent">Mes commandes</Link>
