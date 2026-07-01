@@ -26,6 +26,7 @@ type SeedProduct = {
   supplierRef: string;
   categorySlug: string;
   description: string;
+  grain?: string;
   isPublicPrice?: boolean;
   isFeatured?: boolean;
   variants: {
@@ -133,6 +134,7 @@ const PRODUCTS: SeedProduct[] = [
     supplierRef: "MIR-ABR-P400",
     categorySlug: "abrasifs",
     description: "Disques abrasifs Ø150 mm, grain P400, multi-trous, longue durée.",
+    grain: "P400",
     isPublicPrice: true,
     variants: [
       {
@@ -143,6 +145,31 @@ const PRODUCTS: SeedProduct[] = [
         stock: 60,
         tiers: [{ minQty: 5, priceHt: 4100 }],
       },
+    ],
+  },
+  {
+    name: "Feuilles abrasives P800 (boîte 50)",
+    slug: "feuilles-abrasives-p800",
+    brand: "Mirka",
+    supplierRef: "MIR-ABR-P800",
+    categorySlug: "abrasifs",
+    description: "Feuilles abrasives à sec, grain P800, pour ponçage de finition.",
+    grain: "P800",
+    isPublicPrice: true,
+    variants: [
+      { packaging: "Boîte de 50", sku: "MIR-P800-50", priceHt: 3800, stock: 45 },
+    ],
+  },
+  {
+    name: "Disques abrasifs P240 (boîte 100)",
+    slug: "disques-abrasifs-p240",
+    brand: "3M",
+    supplierRef: "3M-ABR-P240",
+    categorySlug: "abrasifs",
+    description: "Disques abrasifs Ø150 mm, grain P240, dégrossissage rapide.",
+    grain: "P240",
+    variants: [
+      { packaging: "Boîte de 100", sku: "3M-P240-100", priceHt: 4200, stock: 38 },
     ],
   },
   {
@@ -243,6 +270,7 @@ async function main() {
         name: p.name,
         brand: p.brand,
         description: p.description,
+        grain: p.grain ?? null,
         isPublicPrice: p.isPublicPrice ?? false,
         isFeatured: p.isFeatured ?? false,
       },
@@ -252,6 +280,7 @@ async function main() {
         brand: p.brand,
         supplierRef: p.supplierRef,
         description: p.description,
+        grain: p.grain ?? null,
         categoryId,
         isPublicPrice: p.isPublicPrice ?? false,
         isFeatured: p.isFeatured ?? false,

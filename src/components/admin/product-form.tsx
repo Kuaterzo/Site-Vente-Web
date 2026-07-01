@@ -12,6 +12,7 @@ type Product = {
   supplierRef: string | null;
   description: string | null;
   imageUrl: string | null;
+  grain: string | null;
   isPublicPrice: boolean;
   isFeatured: boolean;
 };
@@ -56,6 +57,11 @@ export function ProductForm({
           <input name="supplierRef" defaultValue={product?.supplierRef ?? ""} className="w-full rounded-md border border-line px-3 py-2" />
         </label>
       </div>
+
+      <label className="block sm:w-1/2">
+        <span className="mb-1 block text-sm font-medium">Grain <span className="text-ink/40">(abrasifs)</span></span>
+        <input name="grain" defaultValue={product?.grain ?? ""} placeholder="ex. P400" className="w-full rounded-md border border-line px-3 py-2" />
+      </label>
 
       <label className="block">
         <span className="mb-1 block text-sm font-medium">Description</span>

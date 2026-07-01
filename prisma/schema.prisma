@@ -93,6 +93,8 @@ model Product {
   brand         String
   supplierRef   String?
   imageUrl      String?
+  // Grain (abrasifs) : ex. "P400". Null pour les produits non concernés.
+  grain         String?
   category      Category         @relation(fields: [categoryId], references: [id])
   categoryId    String
   // Visibilité du prix : par défaut réservé aux pros validés ; true = visible par tous

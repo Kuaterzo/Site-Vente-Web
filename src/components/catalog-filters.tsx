@@ -7,9 +7,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 export function CatalogFilters({
   brands,
   packagings,
+  grains = [],
 }: {
   brands: string[];
   packagings: string[];
+  grains?: string[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -59,6 +61,7 @@ export function CatalogFilters({
       {packagings.length > 0 && (
         <FilterGroup title="Conditionnement" paramKey="packaging" options={packagings} />
       )}
+      {grains.length > 0 && <FilterGroup title="Grain" paramKey="grain" options={grains} />}
 
       <div>
         <p className="mb-2 font-semibold">Prix HT (€)</p>

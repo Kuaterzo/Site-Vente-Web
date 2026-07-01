@@ -16,6 +16,7 @@ export default async function CategoryPage({
   searchParams: Promise<{
     brand?: string;
     packaging?: string;
+    grain?: string;
     min?: string;
     max?: string;
     sort?: string;
@@ -34,6 +35,7 @@ export default async function CategoryPage({
     where: {
       categoryId: category.id,
       ...(sp.brand ? { brand: sp.brand } : {}),
+      ...(sp.grain ? { grain: sp.grain } : {}),
       ...(sp.packaging ? { variants: { some: { packaging: sp.packaging } } } : {}),
     },
     include: { variants: { orderBy: { priceHt: "asc" } } },
@@ -66,11 +68,14 @@ export default async function CategoryPage({
   // Options de filtres (toutes les valeurs de la catégorie, indépendamment des filtres actifs)
   const allInCategory = await prisma.product.findMany({
     where: { categoryId: category.id },
-    select: { brand: true, variants: { select: { packaging: true } } },
+    select: { brand: true, grain: true, variants: { select: { packaging: true } } },
   });
   const brands = [...new Set(allInCategory.map((p) => p.brand))].sort();
   const packagings = [
     ...new Set(allInCategory.flatMap((p) => p.variants.map((v) => v.packaging))),
+  ].sort();
+  const grains = [
+    ...new Set(allInCategory.map((p) => p.grain).filter((g): g is string => Boolean(g))),
   ].sort();
 
   // Construit un lien de page en conservant les filtres actifs
@@ -87,7 +92,7 @@ export default async function CategoryPage({
       <p className="mt-1 text-sm text-ink/60">{filtered.length} produit(s)</p>
 
       <div className="mt-6 grid gap-8 md:grid-cols-[200px_1fr]">
-        <CatalogFilters brands={brands} packagings={packagings} />
+        <CatalogFilters brands={brands} packagings={packagings} grains={grains} />
         <div>
           {pageItems.length === 0 ? (
             <p className="text-ink/60">Aucun produit ne correspond à ces filtres.</p>

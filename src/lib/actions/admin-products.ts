@@ -33,6 +33,7 @@ const productSchema = z.object({
   supplierRef: z.string().optional(),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
+  grain: z.string().optional(),
 });
 
 export type ProductFormState = { error?: string };
@@ -54,6 +55,7 @@ export async function saveProduct(
     supplierRef: v.supplierRef || null,
     description: v.description || null,
     imageUrl: v.imageUrl || null,
+    grain: v.grain || null,
     isPublicPrice: formData.get("isPublicPrice") === "on",
     isFeatured: formData.get("isFeatured") === "on",
   };

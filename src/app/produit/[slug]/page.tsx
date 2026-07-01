@@ -65,6 +65,9 @@ export default async function ProductPage({
           {product.supplierRef && (
             <p className="mt-1 text-sm text-ink/50">Réf. fournisseur : {product.supplierRef}</p>
           )}
+          {product.grain && (
+            <p className="mt-1 text-sm text-ink/50">Grain : <span className="font-medium text-ink">{product.grain}</span></p>
+          )}
           <div className="mt-2">
             <StockBadge stock={maxStock} />
           </div>
